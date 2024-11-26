@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aimerrr</title>
+  <style>
+    /* CSS Styles */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: #d0f0c0; /* Light pastel green background */
+      color: #333;
+    }
+
+    h1 {
+      font-size: 48px;
+      color: #a8e6a1; /* Light pastel green */
+      margin-top: 20px;
+      font-weight: 700;
+    }
+
+    #game {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      background-color: #e4f7e4; /* Very light pastel green */
+      overflow: hidden;
+      border: 5px solid #a8e6a1; /* Pastel green outline */
+      margin: 20px auto;
+      max-width: 800px;
+      border-radius: 20px;
+    }
+
+    .target {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #a8e6a1; /* Light pastel green for the targets */
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    @keyframes zigzag {
+      0% { top: 10%; left: 10%; }
+      25% { top: 80%; left: 30%; }
+      50% { top: 20%; left: 70%; }
+      75% { top: 60%; left: 50%; }
+      100% { top: 10%; left: 10%; }
+    }
+
+    @keyframes randomMove {
+      0%, 100% {
+        transform: translate(0, 0);
+      }
+      50% {
+        transform: translate(200px, 150px);
+      }
+    }
+
+    @keyframes blowUp {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.5); /* Increase size */
+        opacity: 0.7;
+      }
+      100% {
+        transform: scale(0); /* Shrink */
+        opacity: 0;
+      }
+    }
+
+    #scoreboard {
+      margin: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    #startButton {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #8cfc8c; /* Pastel green button */
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    #startButton:hover {
+      background: #6fb66f; /* Darker pastel green when hovered */
+    }
+  </style>
+</head>
+<body>
+  <h1>Gun Shooting Game</h1>
+  <p id="scoreboard">Score: 0</p>
+  <button id="startButton">Start Game</button>
+  <div id="game"></div>
+
+  <!-- Background Music (Online source) -->
+  <audio id="backgroundMusic" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Sound Effects for Clicking Targets -->
+  <audio id="shootingSound" preload="auto">
+    <source src="https://www.soundjay.com/button/beep-07.wav" type="audio/wav">
+    Your browser does not support the audio element.
+  </audio>
+
+  <audio id="explosionSound" preload="auto">
+    <source src="https://www.soundjay.com/button/beep-04.wav" type="audio/wav">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    // JavaScript Logic
+    let score = 0;
+    let gameInterval;
+
+    const gameArea = document.getElementById("game");
+    const scoreboard = document.getElementById("scoreboard");
+    const startButton = document.getElementById("startButton");
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    const shootingSound = document.getElementById("shootingSound");
+    const explosionSound = document.getElementById("explosionSound");
+
+    // Play background music when the game starts
+    function playBackgroundMusic() {
+      backgroundMusic.play();
+    }
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    function createTarget(pattern) {
+      const target = document.createElement("div");
+      target.classList.add("target");
+
+      // Random position for the target
+      switch (pattern) {
+        case "random":
+          target.style.top = getRandomInt(0, gameArea.offsetHeight - 60) + "px";
+          target.style.left = getRandomInt(0, gameArea.offsetWidth - 60) + "px";
+          target.style.animation = "randomMove 2.7s infinite"; // Ensure animation is applied
+          break;
+
+        case "zigzag":
+          target.style.animation = "zigzag 3.6s infinite"; // Ensure animation is applied
+          break;
+
+        case "randomMove":
+          target.style.animation = "randomMove 2.7s infinite"; // Ensure animation is applied
+          target.style.top = getRandomInt(0, gameArea.offsetHeight - 60) + "px";
+          target.style.left = getRandomInt(0, gameArea.offsetWidth - 60) + "px";
+          break;
+      }
+
+      // Click event for scoring and blow-up animation
+      target.addEventListener("click", () => {
+        // Play shooting sound
+        shootingSound.play();
+
+        // Trigger the blow-up effect
+        target.style.animation = "blowUp 0.5s forwards"; // Apply the blow-up animation
+        explosionSound.play(); // Play explosion sound
+
+        // Increase score
+        score++;
+        scoreboard.textContent = "Score: " + score;
+
+        // Remove target after animation
+        setTimeout(() => {
+          target.remove();
+        }, 500); // Remove the target after the blow-up animation (0.5s)
+      });
+
+      gameArea.appendChild(target);
+
+      // Remove the target if not clicked after a certain time
+      setTimeout(() => {
+        if (gameArea.contains(target)) {
+          target.remove();
+        }
+      }, 4000); // Target lives for 4 seconds
+    }
+
+    function startGame() {
+      score = 0;
+      scoreboard.textContent = "Score: " + score;
+      gameArea.innerHTML = ""; // Clear any existing targets
+
+      const patterns = ["random", "zigzag", "randomMove"];
+
+      gameInterval = setInterval(() => {
+        const randomPattern = patterns[Math.floor(Math.random() * patterns.length)];
+        createTarget(randomPattern);
+      }, 800); // Spawn interval set to 800ms
+
+      // Stop the game after 30 seconds
+      setTimeout(() => {
+        clearInterval(gameInterval);
+        alert("Game Over! Your final score is: " + score);
+      }, 30000);
+    }
+
+    startButton.addEventListener("click", () => {
+      startGame();
+      playBackgroundMusic(); // Start the background music when the game starts
+    });
+  </script>
+</body>
+</html>
