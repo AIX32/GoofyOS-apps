@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crystal Clicker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: url('https://images.wallpapersden.com/image/download/artistic-pixel-art-hd-space_bWtsZ22UmZqaraWkpJRraWWtaGtl.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        #game-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Clicker Section */
+        #clicker-section {
+            text-align: center;
+        }
+
+        #clicker-button {
+            background: url('https://i.imgur.com/Mb8LFFB.png') no-repeat center center;
+            background-size: contain;
+            width: 150px;
+            height: 150px;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            margin: 20px auto;
+            transition: transform 0.2s;
+        }
+
+        #clicker-button:hover {
+            transform: scale(1.1);
+        }
+
+        #crystals {
+            font-size: 24px;
+            margin: 20px;
+            color: #00ffff;
+        }
+
+        /* Upgrades Section */
+        #upgrades-section {
+            text-align: left;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .upgrade {
+            margin-bottom: 20px;
+        }
+
+        .upgrade button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .upgrade button:hover {
+            background-color: #45a049;
+        }
+
+        /* Buildings Section */
+        #buildings-section {
+            text-align: left;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .building {
+            margin-bottom: 20px;
+        }
+
+        .building button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .building button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Crystal Clicker</h1>
+    <div id="game-container">
+        <!-- Clicker Section -->
+        <div id="clicker-section">
+            <h2>Click to Harvest Crystals</h2>
+            <button id="clicker-button"></button>
+            <div id="crystals">Crystals: 0</div>
+        </div>
+
+        <!-- Upgrades Section -->
+        <div id="upgrades-section">
+            <h2>Upgrades</h2>
+            <div class="upgrade">
+                <button id="upgradeClicker" disabled>Upgrade Click (+1/click) - Cost: 50 Crystals</button>
+            </div>
+            <div class="upgrade">
+                <button id="upgradeAuto" disabled>Upgrade Auto-Miner (+1/sec) - Cost: 100 Crystals</button>
+            </div>
+            <div class="upgrade">
+                <button id="upgradeEfficiency" disabled>Upgrade Efficiency (x2 income) - Cost: 200 Crystals</button>
+            </div>
+        </div>
+
+        <!-- Buildings Section -->
+        <div id="buildings-section">
+            <h2>Buildings</h2>
+            <div class="building">
+                <button id="drill" disabled>Buy Drill (1/sec) - Cost: 100 Crystals</button>
+            </div>
+            <div class="building">
+                <button id="refinery" disabled>Buy Refinery (5/sec) - Cost: 500 Crystals</button>
+            </div>
+            <div class="building">
+                <button id="crystalMine" disabled>Buy Crystal Mine (20/sec) - Cost: 1000 Crystals</button>
+            </div>
+            <div class="building">
+                <button id="researchLab" disabled>Buy Research Lab (100/sec) - Cost: 5000 Crystals</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let crystals = 0;
+        let crystalsPerClick = 1;
+        let crystalsPerSecond = 0;
+
+        // DOM elements
+        const crystalsDisplay = document.getElementById('crystals');
+        const clickerButton = document.getElementById('clicker-button');
+        const upgradeClickerButton = document.getElementById('upgradeClicker');
+        const upgradeAutoButton = document.getElementById('upgradeAuto');
+        const upgradeEfficiencyButton = document.getElementById('upgradeEfficiency');
+        const drillButton = document.getElementById('drill');
+        const refineryButton = document.getElementById('refinery');
+        const crystalMineButton = document.getElementById('crystalMine');
+        const researchLabButton = document.getElementById('researchLab');
+
+        // Costs
+        const upgradeClickerCost = 50;
+        const upgradeAutoCost = 100;
+        const upgradeEfficiencyCost = 200;
+        const drillCost = 100;
+        const refineryCost = 500;
+        const crystalMineCost = 1000;
+        const researchLabCost = 5000;
+
+        // Clicker functionality
+        clickerButton.addEventListener('click', () => {
+            crystals += crystalsPerClick;
+            updateDisplay();
+        });
+
+        // Upgrade clicker
+        upgradeClickerButton.addEventListener('click', () => {
+            if (crystals >= upgradeClickerCost) {
+                crystals -= upgradeClickerCost;
+                crystalsPerClick++;
+                upgradeClickerButton.disabled = true;
+                updateDisplay();
+            }
+        });
+
+        // Upgrade auto-miner
+        upgradeAutoButton.addEventListener('click', () => {
+            if (crystals >= upgradeAutoCost) {
+                crystals -= upgradeAutoCost;
+                crystalsPerSecond += 1;
+                upgradeAutoButton.disabled = true;
+                updateDisplay();
+            }
+        });
+
+        // Upgrade efficiency
+        upgradeEfficiencyButton.addEventListener('click', () => {
+            if (crystals >= upgradeEfficiencyCost) {
+                crystals -= upgradeEfficiencyCost;
+                crystalsPerClick *= 2;
+                crystalsPerSecond *= 2;
+                upgradeEfficiencyButton.disabled = true;
+                updateDisplay();
+            }
+        });
+
+        // Buy buildings
+        drillButton.addEventListener('click', () => buyBuilding(drillButton, drillCost, 1));
+        refineryButton.addEventListener('click', () => buyBuilding(refineryButton, refineryCost, 5));
+        crystalMineButton.addEventListener('click', () => buyBuilding(crystalMineButton, crystalMineCost, 20));
+        researchLabButton.addEventListener('click', () => buyBuilding(researchLabButton, researchLabCost, 100));
+
+        function buyBuilding(button, cost, income) {
+            if (crystals >= cost) {
+                crystals -= cost;
+                crystalsPerSecond += income;
+                button.disabled = true;
+                updateDisplay();
+            }
+        }
+
+        // Update crystal count display
+        function updateDisplay() {
+            crystalsDisplay.textContent = `Crystals: ${crystals}`;
+            upgradeClickerButton.disabled = crystals < upgradeClickerCost;
+            upgradeAutoButton.disabled = crystals < upgradeAutoCost;
+            upgradeEfficiencyButton.disabled = crystals < upgradeEfficiencyCost;
+            drillButton.disabled = crystals < drillCost;
+            refineryButton.disabled = crystals < refineryCost;
+            crystalMineButton.disabled = crystals < crystalMineCost;
+            researchLabButton.disabled = crystals < researchLabCost;
+        }
+
+        // Passive income loop
+        setInterval(() => {
+            crystals += crystalsPerSecond;
+            updateDisplay();
+        }, 1000);
+    </script>
+</body>
+</html>
