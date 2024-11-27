@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goofy OS Flashlight</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #2b2b2b; /* Goofy OS dark theme */
+            color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .flashlight-container {
+            text-align: center;
+            background-color: #3a3a3a;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .flashlight-button {
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            background-color: #92a784; /* Green for button */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .flashlight-button:hover {
+            background-color: #52755e; /* Darker green on hover */
+        }
+
+        .flashlight-on {
+            background-color: #ffffff;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            display: none;
+        }
+
+        .flashlight-on.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="flashlight-container">
+        <button class="flashlight-button" id="toggleButton" onclick="toggleFlashlight()">Turn On Flashlight</button>
+    </div>
+    <div class="flashlight-on" id="flashlight"></div>
+
+    <script>
+        function toggleFlashlight() {
+            const flashlight = document.getElementById('flashlight');
+            const button = document.getElementById('toggleButton');
+            
+            flashlight.classList.toggle('active');
+
+            if (flashlight.classList.contains('active')) {
+                button.textContent = 'Turn Off Flashlight';
+            } else {
+                button.textContent = 'Turn On Flashlight';
+            }
+        }
+    </script>
+</body>
+</html>
