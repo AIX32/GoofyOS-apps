@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoofyOS File Manager</title>
+    <title>Xyle OS File Manager</title>
     <style>
         body {
             background-color: #2f2f2f;
@@ -58,9 +58,14 @@
             border-radius: 5px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         .file-item:hover {
             background-color: #555555;
+        }
+        .file-buttons {
+            display: flex;
+            gap: 10px;
         }
         .popup-content {
             max-width: 90%;
@@ -76,7 +81,7 @@
 <body>
 
 <div class="container">
-    <h1>GoofyOS File Manager</h1>
+    <h1>File Manager</h1>
 
     <!-- File Upload Section -->
     <div class="file-manager">
@@ -145,8 +150,10 @@
             li.className = 'file-item';
             li.innerHTML = `
                 <span>${file.name}</span>
-                <button onclick="previewFile('${file.download_url}', '${file.name}')">Preview</button>
-                <button onclick="downloadFile('${file.download_url}')">Download</button>
+                <div class="file-buttons">
+                    <button onclick="previewFile('${file.download_url}', '${file.name}')">Preview</button>
+                    <button onclick="downloadFile('${file.download_url}')">Download</button>
+                </div>
             `;
             fileList.appendChild(li);
         });
