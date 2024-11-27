@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goofy OS Flashcards</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #2b2b2b; /* Goofy OS dark theme */
+            color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .flashcard-container {
+            text-align: center;
+            background-color: #3a3a3a; /* Slightly lighter dark background */
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .flashcard {
+            background-color: #92a784; /* Greenish background */
+            color: #fff;
+            border-radius: 15px;
+            padding: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .flashcard:hover {
+            transform: scale(1.05);
+        }
+
+        .answer {
+            display: none;
+        }
+
+        .question {
+            display: block;
+        }
+
+        .button {
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            background-color: #92a784;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .button:hover {
+            background-color: #52755e;
+        }
+    </style>
+</head>
+<body>
+    <div class="flashcard-container">
+        <div id="flashcard" class="flashcard">
+            <div class="question">What is the capital of France?</div>
+            <div class="answer">Paris</div>
+        </div>
+        <button class="button" onclick="nextFlashcard()">Next Flashcard</button>
+    </div>
+
+    <script>
+        const flashcards = [
+            { question: "What is the capital of France?", answer: "Paris" },
+            { question: "What is 2 + 2?", answer: "4" },
+            { question: "Who wrote 'Romeo and Juliet'?", answer: "William Shakespeare" },
+            { question: "What is the largest planet in our solar system?", answer: "Jupiter" },
+            { question: "What is the chemical symbol for water?", answer: "H2O" },
+            { question: "What is the square root of 64?", answer: "8" },
+            { question: "Who painted the Mona Lisa?", answer: "Leonardo da Vinci" },
+            { question: "What is the longest river in the world?", answer: "Nile" },
+            { question: "How many continents are there?", answer: "7" },
+            { question: "What is the hardest natural substance on Earth?", answer: "Diamond" },
+            { question: "What is the capital of Japan?", answer: "Tokyo" },
+            { question: "Who invented the telephone?", answer: "Alexander Graham Bell" },
+            { question: "What is the largest ocean on Earth?", answer: "Pacific Ocean" },
+            { question: "What is the chemical symbol for gold?", answer: "Au" },
+            { question: "Who is the author of 'Harry Potter'?", answer: "J.K. Rowling" },
+            { question: "What is the smallest planet in our solar system?", answer: "Mercury" },
+            { question: "What is the boiling point of water in Celsius?", answer: "100°C" },
+            { question: "Who was the first president of the United States?", answer: "George Washington" },
+            { question: "What is the largest desert in the world?", answer: "Sahara Desert" },
+            { question: "What is the most spoken language in the world?", answer: "Mandarin" },
+            { question: "What is the national animal of Australia?", answer: "Kangaroo" },
+            { question: "What is the smallest bone in the human body?", answer: "Stapes" },
+            { question: "What is the capital of Canada?", answer: "Ottawa" },
+            { question: "What is the tallest mountain in the world?", answer: "Mount Everest" },
+            { question: "What is the currency of the United Kingdom?", answer: "Pound Sterling" },
+            { question: "What is the main ingredient in guacamole?", answer: "Avocado" },
+            { question: "What is the capital of Italy?", answer: "Rome" },
+            { question: "Who was the first man to walk on the moon?", answer: "Neil Armstrong" },
+            { question: "What is the longest bone in the human body?", answer: "Femur" },
+            { question: "What is the capital of Australia?", answer: "Canberra" },
+            { question: "Which animal is known as the king of the jungle?", answer: "Lion" },
+            { question: "What is the largest country by land area?", answer: "Russia" },
+            { question: "What is the symbol for silver on the periodic table?", answer: "Ag" },
+            { question: "Which planet is known as the Red Planet?", answer: "Mars" },
+            { question: "What is the capital of Spain?", answer: "Madrid" },
+            { question: "What is the fastest land animal?", answer: "Cheetah" },
+            { question: "What is the capital of Brazil?", answer: "Brasília" },
+            { question: "What element does 'O' represent on the periodic table?", answer: "Oxygen" },
+            { question: "What is the capital of Germany?", answer: "Berlin" }
+        ];
+
+        let currentIndex = 0;
+
+        const flashcardElement = document.getElementById('flashcard');
+        const questionElement = flashcardElement.querySelector('.question');
+        const answerElement = flashcardElement.querySelector('.answer');
+
+        flashcardElement.addEventListener('click', () => {
+            questionElement.style.display = 'none';
+            answerElement.style.display = 'block';
+        });
+
+        function nextFlashcard() {
+            currentIndex = (currentIndex + 1) % flashcards.length;
+            const card = flashcards[currentIndex];
+            questionElement.style.display = 'block';
+            answerElement.style.display = 'none';
+            questionElement.textContent = card.question;
+            answerElement.textContent = card.answer;
+        }
+    </script>
+</body>
+</html>
