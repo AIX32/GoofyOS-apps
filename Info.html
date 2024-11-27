@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoofyOS Info</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+        }
+
+        /* General Window Styling */
+        .window {
+            background-color: #1c1c1c;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 900px;
+        }
+
+        /* Green Color Adjustments */
+        .pastel-green {
+            color: #77dd77; /* Pastel Green */
+        }
+
+        .close-btn {
+            background-color: transparent;
+            color: #77dd77; /* Pastel Green */
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        .window-content {
+            padding: 15px;
+            color: #c0c0c0;
+        }
+
+        h1 {
+            color: #77dd77; /* Pastel Green */
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #a8e6a1; /* Lighter Pastel Green */
+            font-size: 22px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .feature {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .feature:hover {
+            background-color: #444;
+        }
+
+        .feature-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #77dd77; /* Pastel Green */
+        }
+
+        .feature-description {
+            margin-top: 5px;
+        }
+
+        .code-snippet {
+            background-color: #2c2c2c;
+            color: #c0c0c0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+
+        code {
+            display: block;
+            white-space: pre-wrap;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #77dd77; /* Pastel Green */
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: #121212;
+        }
+
+        /* Links Styling */
+        a {
+            color: #77dd77; /* Pastel Green */
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="window">
+        <div class="window-content">
+            <h1>Welcome to the GoofyOS Info Page</h1>
+
+            <div class="section">
+                <h2>Introduction</h2>
+                <p>Welcome to GoofyOS! This application allows you to create, manage, and run custom HTML apps within the GoofyOS desktop environment. Learn more about its features below.</p>
+            </div>
+
+            <div class="section">
+                <h2>Core Features</h2>
+
+                <div class="feature">
+                    <div class="feature-title">1. Create Custom Apps</div>
+                    <div class="feature-description">
+                        You can create your own apps by providing a name and HTML content. Once created, these apps will appear on the sidebar for easy access. Apps can include any HTML, CSS, and JavaScript to create a custom experience.
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-title">2. Store Apps</div>
+                    <div class="feature-description">
+                        If you cant code there is some built in apps that you can get in the store.
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-title">3. Drag-and-Drop Windows</div>
+                    <div class="feature-description">
+                        All app windows are draggable, meaning you can position them anywhere on the desktop. This allows for easy multitasking and a flexible workspace.
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-title">3. Resizing</div>
+                    <div class="feature-description">
+                        Drag the right bottom corner to resize the Window.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>How It Works</h2>
+                <p>The GoofyOS app consists of a desktop environment with draggable windows. You can create new apps, view the app store, or open the info page. Here's a basic walkthrough:</p>
+                
+                <ol>
+                    <li><strong>Create a New App:</strong> Enter a name and HTML content, then click the "Create App" button to add the app to your sidebar.</li>
+                    <li><strong>Open an App:</strong> Click on an app in your sidebar to open it in its own window. Apps are displayed in an iframe, allowing you to interact with them in the GoofyOS environment.</li>
+                    <li><strong>Fetch More Apps:</strong> Open the store window to fetch more apps from the GitHub repository and add them to your sidebar.</li>
+                    <li><strong>Drag-and-Drop:</strong> Move the app windows around to organize your workspace as you like.</li>
+                </ol>
+            </div>
+
+            <div class="section">
+                <h2>Code Example</h2>
+                <p>Here’s an example of how you can create an app within the GoofyOS environment:</p>
+                <div class="code-snippet">
+                    <code>
+function createApp() {<br>
+    const name = document.getElementById('app-name').value, html = document.getElementById('app-html').value;<br>
+    if (!name || !html) return alert('Provide app name and HTML content');<br>
+    const icon = document.createElement('i');<br>
+    icon.classList.add('fas', 'fa-window-restore', 'icon');<br>
+    icon.onclick = () => openAppWindow(name, html);<br>
+    document.getElementById('side-bar').appendChild(icon);<br>
+}
+                    </code>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Feedback</h2>
+                <p>If you have any suggestions or feedback, Tell me on Discord</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
