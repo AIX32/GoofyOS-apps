@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palette Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #2b2b2b; /* Goofy OS dark theme */
+            color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .palette-container {
+            text-align: center;
+            background-color: #3a3a3a; /* Slightly lighter dark background */
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #92a784; /* Green text */
+        }
+
+        input[type="color"] {
+            padding: 0;
+            border: none;
+            background-color: #444;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            border-radius: 15px; /* Round corners for the color picker */
+        }
+
+        .palette {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .color-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid #92a784;
+        }
+
+        .color-box:hover {
+            opacity: 0.8;
+        }
+
+        .transparency-row {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .transparency-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid #92a784;
+        }
+
+        .palette-info {
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            background-color: #92a784;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #52755e; /* Darker green on hover */
+        }
+
+        /* Tooltip when color is copied */
+        .tooltip {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #92a784;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="palette-container">
+        <h2>Palette Generator</h2>
+        <input type="color" id="colorPicker" value="#68b684">
+        <button onclick="generatePalette()">Generate</button>
+        
+        <div class="palette" id="palette"></div>
+        <div class="palette-info" id="paletteInfo"></div>
+        <div class="transparency-row" id="transparencyRow"></div>
+    </div>
+
+    <div class="tooltip" id="tooltip">Copied to clipboard!</div>
+
+    <script>
+        const colorPicker = document.getElementById('colorPicker');
+        const paletteContainer = document.getElementById('palette');
+        const paletteInfo = document.getElementById('paletteInfo');
+        const tooltip = document.getElementById('tooltip');
+        const transparencyRow = document.getElementById('transparencyRow');
+
+        // Function to generate color palette based on input color
+        function generatePalette() {
+            const baseColor = colorPicker.value;
+            const palette = [];
+            const baseRgb = hexToRgb(baseColor);
+
+            // Generate palette with various shades and hues
+            for (let i = 0; i < 5; i++) {
+                let newColor = adjustColor(baseRgb, i - 2); // Modify the color (lighten/darken)
+                palette.push(rgbToHex(newColor));
+            }
+
+            // Display palette and transparency row
+            displayPalette(palette);
+            generateTransparencyRow(baseColor);
+        }
+
+        // Adjust color brightness (lighten/darken)
+        function adjustColor(rgb, amount) {
+            return {
+                r: Math.min(255, Math.max(0, rgb.r + amount * 30)),
+                g: Math.min(255, Math.max(0, rgb.g + amount * 30)),
+                b: Math.min(255, Math.max(0, rgb.b + amount * 30))
+            };
+        }
+
+        // Convert hex to rgb
+        function hexToRgb(hex) {
+            let r = 0, g = 0, b = 0;
+            // 3 digits
+            if (hex.length === 4) {
+                r = parseInt(hex[1] + hex[1], 16);
+                g = parseInt(hex[2] + hex[2], 16);
+                b = parseInt(hex[3] + hex[3], 16);
+            }
+            // 6 digits
+            else if (hex.length === 7) {
+                r = parseInt(hex[1] + hex[2], 16);
+                g = parseInt(hex[3] + hex[4], 16);
+                b = parseInt(hex[5] + hex[6], 16);
+            }
+            return { r, g, b };
+        }
+
+        // Convert rgb to hex
+        function rgbToHex(rgb) {
+            return `#${((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1).toUpperCase()}`;
+        }
+
+        // Display the palette of colors
+        function displayPalette(palette) {
+            paletteContainer.innerHTML = ''; // Clear existing palette
+            palette.forEach(color => {
+                const colorBox = document.createElement('div');
+                colorBox.classList.add('color-box');
+                colorBox.style.backgroundColor = color;
+
+                // Add the color box to the container
+                colorBox.onclick = () => copyToClipboard(color);
+                paletteContainer.appendChild(colorBox);
+            });
+        }
+
+        // Generate transparency row based on selected color
+        function generateTransparencyRow(baseColor) {
+            transparencyRow.innerHTML = ''; // Clear previous row
+            const baseRgb = hexToRgb(baseColor);
+
+            // Create transparent variations
+            for (let i = 0; i <= 10; i++) {
+                let alpha = i / 10;  // Transparency from 0 to 1
+                let rgbaColor = `rgba(${baseRgb.r}, ${baseRgb.g}, ${baseRgb.b}, ${alpha})`;
+                const transparencyBox = document.createElement('div');
+                transparencyBox.classList.add('transparency-box');
+                transparencyBox.style.backgroundColor = rgbaColor;
+                transparencyBox.onclick = () => copyToClipboard(rgbaColor);
+                transparencyRow.appendChild(transparencyBox);
+            }
+        }
+
+        // Copy hex value to clipboard
+        function copyToClipboard(color) {
+            const textarea = document.createElement('textarea');
+            textarea.value = color;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            // Show tooltip
+            showTooltip(color);
+        }
+
+        // Show tooltip when color is copied
+        function showTooltip(color) {
+            tooltip.textContent = `${color} copied!`;
+            tooltip.style.display = 'block';
+            setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 2000);
+        }
+
+        // Initial palette generation
+        window.onload = generatePalette;
+    </script>
+</body>
+</html>
