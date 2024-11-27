@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoofyOS File Manager</title>
+    <style>
+        body {
+            background-color: #2f2f2f;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2 {
+            color: #92a784;
+        }
+        .container {
+            padding: 20px;
+        }
+        .input-form, .file-manager {
+            background-color: #333333;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        label {
+            color: #b3b3b3;
+        }
+        input, select {
+            background-color: #444444;
+            border: 1px solid #92a784;
+            color: #e0e0e0;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            margin: 10px 0;
+        }
+        button {
+            background-color: #92a784;
+            border: none;
+            padding: 10px;
+            color: #2f2f2f;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #748669;
+        }
+        .file-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .file-item {
+            padding: 10px;
+            background-color: #444444;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .file-item:hover {
+            background-color: #555555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>GoofyOS File Manager</h1>
+
+    <!-- User Input Form -->
+    <div class="input-form" id="user-input-form">
+        <h2>GitHub Repository Info</h2>
+        <label for="repo-owner">Repository Owner:</label>
+        <input type="text" id="repo-owner" placeholder="Enter GitHub Repo Owner" required>
+        
+        <label for="repo-name">Repository Name:</label>
+        <input type="text" id="repo-name" placeholder="Enter GitHub Repo Name" required>
+        
+        <label for="token">Personal Access Token:</label>
+        <input type="text" id="token" placeholder="Enter GitHub Token" required>
+        
+        <button onclick="fetchFiles()">Connect and Fetch Files</button>
+    </div>
+
+    <!-- File Manager -->
+    <div class="file-manager" id="file-manager" style="display: none;">
+        <h2>Files in Repository</h2>
+        <ul class="file-list" id="file-list"></ul>
+
+        <h3>Upload New File</h3>
+        <label for="file-upload">Select File:</label>
+        <input type="file" id="file-upload">
+        <button onclick="uploadFile()">Upload File</button>
+    </div>
+</div>
+
+<script>
+    async function fetchFiles() {
+        const repoOwner = document.getElementById('repo-owner').value;
+        const repoName = document.getElementById('repo-name').value;
+        const token = document.getElementById('token').value;
+        
+        if (!repoOwner || !repoName || !token) {
+            alert('Please fill in all fields!');
+            return;
+        }
+
+        // Hide the input form and show the file manager
+        document.getElementById('user-input-form').style.display = 'none';
+        document.getElementById('file-manager').style.display = 'block';
+
+        // Make the GitHub API call to fetch the files
+        const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents`;
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `token ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            alert('Failed to fetch files! Please check your input.');
+            return;
+        }
+
+        const files = await response.json();
+        const fileList = document.getElementById('file-list');
+
+        fileList.innerHTML = ''; // Clear previous list
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'file-item';
+            li.innerHTML = `
+                <span>${file.name}</span>
+                <button onclick="downloadFile('${file.download_url}')">Download</button>
+            `;
+            fileList.appendChild(li);
+        });
+    }
+
+    function downloadFile(downloadUrl) {
+        window.open(downloadUrl, '_blank');
+    }
+
+    async function uploadFile() {
+        const repoOwner = document.getElementById('repo-owner').value;
+        const repoName = document.getElementById('repo-name').value;
+        const token = document.getElementById('token').value;
+        const fileInput = document.getElementById('file-upload');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            alert('Please select a file to upload.');
+            return;
+        }
+
+        const fileContent = await readFile(file);
+        const base64Content = btoa(fileContent);  // Convert file content to base64
+        
+        const path = file.name; // File name is the path in the repo
+
+        // Prepare data for the GitHub API PUT request
+        const data = {
+            message: 'Upload new file',
+            committer: {
+                name: 'Your Name', // Replace with your name
+                email: 'your-email@example.com' // Replace with your email
+            },
+            content: base64Content
+        };
+
+        // Make PUT request to upload file
+        const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            alert('File uploaded successfully!');
+            fetchFiles(); // Refresh the file list
+        } else {
+            alert('Failed to upload file! Please check your input and try again.');
+        }
+    }
+
+    function readFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                resolve(e.target.result);
+            };
+            reader.onerror = function(e) {
+                reject('Error reading file');
+            };
+            reader.readAsText(file);
+        });
+    }
+</script>
+
+</body>
+</html>
