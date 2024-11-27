@@ -62,12 +62,29 @@
         .file-item:hover {
             background-color: #555555;
         }
+        .popup-content {
+            max-width: 90%;
+            max-height: 80%;
+            overflow: auto;
+        }
+        .popup-video, .popup-image {
+            max-width: 100%;
+            max-height: 80vh;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>GoofyOS File Manager</h1>
+
+    <!-- File Upload Section -->
+    <div class="file-manager">
+        <h3>Upload New File</h3>
+        <label for="file-upload">Select File:</label>
+        <input type="file" id="file-upload">
+        <button onclick="uploadFile()">Upload File</button>
+    </div>
 
     <!-- User Input Form -->
     <div class="input-form" id="user-input-form">
@@ -88,11 +105,6 @@
     <div class="file-manager" id="file-manager" style="display: none;">
         <h2>Files in Repository</h2>
         <ul class="file-list" id="file-list"></ul>
-
-        <h3>Upload New File</h3>
-        <label for="file-upload">Select File:</label>
-        <input type="file" id="file-upload">
-        <button onclick="uploadFile()">Upload File</button>
     </div>
 </div>
 
@@ -133,6 +145,7 @@
             li.className = 'file-item';
             li.innerHTML = `
                 <span>${file.name}</span>
+                <button onclick="previewFile('${file.download_url}', '${file.name}')">Preview</button>
                 <button onclick="downloadFile('${file.download_url}')">Download</button>
             `;
             fileList.appendChild(li);
@@ -200,6 +213,35 @@
             };
             reader.readAsText(file);
         });
+    }
+
+    function previewFile(downloadUrl, fileName) {
+        const fileExtension = fileName.split('.').pop().toLowerCase();
+        const popup = window.open('', '_blank', 'width=800,height=600');
+        const popupContent = popup.document.createElement('div');
+        popup.document.body.appendChild(popupContent);
+
+        if (fileExtension === 'txt' || fileExtension === 'html' || fileExtension === 'json') {
+            fetch(downloadUrl)
+                .then(response => response.text())
+                .then(content => {
+                    popupContent.innerHTML = `<pre>${content}</pre>`;
+                });
+        } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
+            popupContent.innerHTML = `<video class="popup-content popup-video" controls>
+                <source src="${downloadUrl}" type="video/${fileExtension}">
+                Your browser does not support the video tag.
+            </video>`;
+        } else if (['mp3', 'wav', 'ogg'].includes(fileExtension)) {
+            popupContent.innerHTML = `<audio class="popup-content" controls>
+                <source src="${downloadUrl}" type="audio/${fileExtension}">
+                Your browser does not support the audio element.
+            </audio>`;
+        } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExtension)) {
+            popupContent.innerHTML = `<img class="popup-content popup-image" src="${downloadUrl}" alt="${fileName}">`;
+        } else {
+            popupContent.innerHTML = `<p>Unable to preview this file type.</p>`;
+        }
     }
 </script>
 
