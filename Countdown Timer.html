@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #1f1f1f;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+            color: #92a784; /* Accent color */
+        }
+
+        .time {
+            font-size: 3em;
+            margin: 20px 0;
+            color: #92a784; /* Accent color */
+        }
+
+        .time-picker {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            width: 80px;
+            text-align: center;
+        }
+
+        button {
+            background-color: #92a784; /* Accent color */
+            color: white;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #7a8e62;
+        }
+
+        button:active {
+            background-color: #5a6d49;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Timer</h1>
+
+        <!-- Time Picker for Hours and Minutes -->
+        <div class="time-picker">
+            <input type="number" id="hoursInput" placeholder="HH" min="0" max="23">
+            <input type="number" id="minutesInput" placeholder="MM" min="0" max="59">
+        </div>
+
+        <div class="time" id="time">00:00</div>
+
+        <button id="startButton">Start Timer</button>
+        <button id="resetButton" disabled>Restart Timer</button>
+    </div>
+
+    <script>
+        let countdown;
+        let seconds;
+        let isRunning = false;
+
+        const startButton = document.getElementById('startButton');
+        const resetButton = document.getElementById('resetButton');
+        const timeDisplay = document.getElementById('time');
+        const hoursInput = document.getElementById('hoursInput');
+        const minutesInput = document.getElementById('minutesInput');
+
+        // Start or stop the timer
+        startButton.addEventListener('click', function() {
+            if (isRunning) {
+                clearInterval(countdown);
+                startButton.textContent = 'Start Timer';
+                resetButton.disabled = false;
+            } else {
+                const hours = parseInt(hoursInput.value) || 0;
+                const minutes = parseInt(minutesInput.value) || 0;
+                if (isNaN(hours) || isNaN(minutes) || (hours === 0 && minutes === 0)) {
+                    alert("Please enter a valid time.");
+                    return;
+                }
+                seconds = (hours * 3600) + (minutes * 60); // Convert to seconds
+                countdown = setInterval(updateTime, 1000);
+                startButton.textContent = 'Stop Timer';
+                resetButton.disabled = false;
+            }
+            isRunning = !isRunning;
+        });
+
+        // Reset the timer to the initial input
+        resetButton.addEventListener('click', function() {
+            clearInterval(countdown);
+            hoursInput.value = '';
+            minutesInput.value = '';
+            timeDisplay.textContent = '00:00';
+            startButton.textContent = 'Start Timer';
+            resetButton.disabled = true;
+            isRunning = false;
+        });
+
+        // Update time every second
+        function updateTime() {
+            if (seconds <= 0) {
+                clearInterval(countdown);
+                startButton.textContent = 'Start Timer';
+                resetButton.disabled = false;
+                beep();
+            } else {
+                seconds--;
+                let hours = Math.floor(seconds / 3600);
+                let minutes = Math.floor((seconds % 3600) / 60);
+                let remainingSeconds = seconds % 60;
+                timeDisplay.textContent = `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
+            }
+        }
+
+        // Format time with leading zero if necessary
+        function pad(num) {
+            return num < 10 ? '0' + num : num;
+        }
+
+        // Play beep sound
+        function beep() {
+            const audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
+            audio.play();
+        }
+    </script>
+</body>
+</html>
