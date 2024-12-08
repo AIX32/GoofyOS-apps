@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextQuest</title>
+    <style>
+body {
+    font-family: "Arial", sans-serif;
+    background: #333; /* Gray background */
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#game-container {
+    width: 100%;
+    max-width: 800px;
+    background: #444; /* Dark gray for the container */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease-in-out;
+}
+
+#game-container:hover {
+    transform: scale(1.02);
+}
+
+#output {
+    border: 2px solid #5cbe6d; /* Lighter green accent border */
+    background: #555; /* Slightly lighter gray for contrast */
+    padding: 15px;
+    margin-bottom: 20px;
+    height: 200px;
+    overflow-y: auto;
+    border-radius: 8px;
+    font-family: "Courier New", monospace;
+    color: #e0e0e0;
+    box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.btn {
+    display: inline-block;
+    background: #5cbe6d; /* Lighter green background */
+    color: #fff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 10px 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    background: #75d085; /* Even lighter green on hover */
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+#stats {
+    margin-top: 20px;
+    padding: 15px;
+    background: #555; /* Slightly lighter gray for stats */
+    border: 2px solid #5cbe6d; /* Lighter green accent border */
+    border-radius: 8px;
+    font-size: 1.1em;
+    box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>TextQuest</h1>
+        <div id="output">Welcome! Choose your path below:</div>
+        <div id="buttons"></div>
+        <div id="stats">
+            <h3>Your Stats:</h3>
+            <p>Health: <span id="health">100</span></p>
+            <p>Gold: <span id="gold">0</span></p>
+            <p>Items: <span id="items">None</span></p>
+            <p>Level: <span id="level">1</span></p>
+        </div>
+    </div>
+
+    <script>
+        let health = 100;
+        let gold = 0;
+        let inventory = [];
+        let currentArea = "start";
+        let enemy = null;
+        let level = 1;
+
+        function updateStats() {
+            document.getElementById("health").innerText = health;
+            document.getElementById("gold").innerText = gold;
+            document.getElementById("items").innerText = inventory.length > 0 ? inventory.join(", ") : "None";
+            document.getElementById("level").innerText = level;
+        }
+
+        function updateButtons() {
+            const buttons = document.getElementById("buttons");
+            buttons.innerHTML = "";
+
+            if (currentArea === "start") {
+                buttons.innerHTML += `<button class="btn" onclick="choosePath('forest')">Enter the Forest</button>`;
+                buttons.innerHTML += `<button class="btn" onclick="choosePath('cave')">Explore the Cave</button>`;
+                buttons.innerHTML += `<button class="btn" onclick="choosePath('village')">Visit the Village</button>`;
+            } else if (currentArea === "forest") {
+                buttons.innerHTML += `<button class="btn" onclick="searchForest()">Search the Forest</button>`;
+                buttons.innerHTML += `<button class="btn" onclick="returnToStart()">Return to Start</button>`;
+            } else if (currentArea === "cave") {
+                if (enemy) {
+                    buttons.innerHTML += `<button class="btn" onclick="attackEnemy()">Attack</button>`;
+                    buttons.innerHTML += `<button class="btn" onclick="defend()">Defend</button>`;
+                } else {
+                    buttons.innerHTML += `<button class="btn" onclick="searchCave()">Search the Cave</button>`;
+                    buttons.innerHTML += `<button class="btn" onclick="returnToStart()">Return to Start</button>`;
+                }
+            } else if (currentArea === "village") {
+                buttons.innerHTML += `<button class="btn" onclick="restAtInn()">Rest at the Inn</button>`;
+                buttons.innerHTML += `<button class="btn" onclick="visitShop()">Visit the Shop</button>`;
+                buttons.innerHTML += `<button class="btn" onclick="returnToStart()">Return to Start</button>`;
+            }
+        }
+
+        function choosePath(path) {
+            currentArea = path;
+            const output = document.getElementById("output");
+            if (path === "forest") {
+                output.innerHTML += "<p>You enter the forest, surrounded by tall trees and distant animal sounds.</p>";
+            } else if (path === "cave") {
+                output.innerHTML += "<p>You enter a dark cave. The air is damp and you hear faint growls...</p>";
+                searchCave(); // Automatically trigger cave search on arrival
+            } else if (path === "village") {
+                output.innerHTML += "<p>You arrive at the village. It feels safe and bustling with activity.</p>";
+            }
+            output.scrollTop = output.scrollHeight;
+            updateButtons();
+        }
+
+        function searchForest() {
+            const output = document.getElementById("output");
+            if (Math.random() > 0.5) {
+                inventory.push("Herbs");
+                output.innerHTML += "<p>You find some useful herbs.</p>";
+            } else {
+                health -= 10;
+                output.innerHTML += "<p>You get scratched by thorns while searching. (-10 health)</p>";
+            }
+            updateStats();
+        }
+
+        function searchCave() {
+            const output = document.getElementById("output");
+            const chance = Math.random();
+            if (chance < 0.2) { // 20% chance of mob attack
+                output.innerHTML += "<p>A wild goblin attacks you!</p>";
+                enemy = { name: "Goblin", health: 50, damage: 15 };
+                output.innerHTML += `<p>A ${enemy.name} appears!</p>`;
+                updateButtons(); // Ensure the attack or defend options are shown
+            } else if (chance < 0.4) { // 20% chance of finding a treasure
+                gold += Math.floor(Math.random() * 100) + 20; // Find a treasure chest
+                output.innerHTML += "<p>You find a treasure chest! You gain gold.</p>";
+            } else {
+                output.innerHTML += "<p>The cave is calm and quiet. You find nothing.</p>";
+            }
+            updateStats();
+        }
+
+        function attackEnemy() {
+            const output = document.getElementById("output");
+            const playerDamage = Math.floor(Math.random() * 20) + 1;
+            const enemyDamage = Math.floor(Math.random() * enemy.damage) + 1;
+
+            enemy.health -= playerDamage;
+            health -= enemyDamage;
+
+            output.innerHTML += `<p>You attack the ${enemy.name} for ${playerDamage} damage!</p>`;
+            output.innerHTML += `<p>The ${enemy.name} attacks you for ${enemyDamage} damage!</p>`;
+
+            if (enemy.health <= 0) {
+                output.innerHTML += `<p>You defeated the ${enemy.name}!</p>`;
+                inventory.push("Goblin's Loot");
+                enemy = null;
+                levelUp(); // Player levels up after defeating an enemy
+            }
+
+            if (health <= 0) {
+                output.innerHTML += "<p>You have been defeated! Game over.</p>";
+                health = 0;
+            }
+
+            output.scrollTop = output.scrollHeight;
+            updateStats();
+            updateButtons();
+        }
+
+        function defend() {
+            const output = document.getElementById("output");
+            const enemyDamage = Math.floor(Math.random() * (enemy.damage / 2)) + 1;
+
+            health -= enemyDamage;
+
+            output.innerHTML += `<p>You defend against the ${enemy.name}'s attack, taking only ${enemyDamage} damage!</p>`;
+            if (health <= 0) {
+                output.innerHTML += "<p>You have been defeated! Game over.</p>";
+                health = 0;
+            }
+
+            output.scrollTop = output.scrollHeight;
+            updateStats();
+            updateButtons();
+        }
+
+        function levelUp() {
+            level++;
+            health = 100; // Full heal upon leveling up
+            gold += 50; // Bonus gold for leveling up
+            const output = document.getElementById("output");
+            output.innerHTML += `<p>You leveled up! You are now level ${level}. Your health is fully restored, and you gain 50 gold!</p>`;
+            updateStats();
+        }
+
+        function restAtInn() {
+            health = 100;
+            const output = document.getElementById("output");
+            output.innerHTML += "<p>You rest at the inn and recover all your health.</p>";
+            updateStats();
+        }
+
+        function visitShop() {
+            const output = document.getElementById("output");
+            output.innerHTML += "<p>Welcome to the shop! You can buy items here.</p>";
+            if (gold >= 20) {
+                output.innerHTML += `<button class="btn" onclick="buyItem('Healing Potion')">Buy Healing Potion (20 Gold)</button>`;
+            } else {
+                output.innerHTML += "<p>You don't have enough gold to buy anything.</p>";
+            }
+            updateStats();
+        }
+
+        function buyItem(item) {
+            const output = document.getElementById("output");
+            if (item === "Healing Potion" && gold >= 20) {
+                inventory.push(item);
+                gold -= 20;
+                output.innerHTML += "<p>You bought a Healing Potion!</p>";
+                updateStats();
+            } else {
+                output.innerHTML += "<p>You don't have enough gold to buy that.</p>";
+            }
+        }
+
+        function useItem(item) {
+            const output = document.getElementById("output");
+            if (item === "Healing Potion") {
+                if (inventory.includes("Healing Potion")) {
+                    health = Math.min(100, health + 50); // Heal up to max health
+                    inventory = inventory.filter(i => i !== "Healing Potion");
+                    output.innerHTML += "<p>You use a Healing Potion and regain 50 health.</p>";
+                    updateStats();
+                } else {
+                    output.innerHTML += "<p>You don't have any Healing Potions to use.</p>";
+                }
+            }
+        }
+
+        function returnToStart() {
+            currentArea = "start";
+            const output = document.getElementById("output");
+            output.innerHTML += "<p>You return to the starting point.</p>";
+            updateButtons();
+        }
+
+        updateButtons();
+    </script>
+</body>
+</html>
