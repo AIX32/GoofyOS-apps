@@ -5,79 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TextQuest</title>
     <style>
-body {
-    font-family: "Arial", sans-serif;
-    background: #333; /* Gray background */
-    color: #fff;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-#game-container {
-    width: 100%;
-    max-width: 800px;
-    background: #444; /* Dark gray for the container */
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease-in-out;
-}
-
-#game-container:hover {
-    transform: scale(1.02);
-}
-
-#output {
-    border: 2px solid #5cbe6d; /* Lighter green accent border */
-    background: #555; /* Slightly lighter gray for contrast */
-    padding: 15px;
-    margin-bottom: 20px;
-    height: 200px;
-    overflow-y: auto;
-    border-radius: 8px;
-    font-family: "Courier New", monospace;
-    color: #e0e0e0;
-    box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.4);
-}
-
-.btn {
-    display: inline-block;
-    background: #5cbe6d; /* Lighter green background */
-    color: #fff;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin: 10px 5px;
-    font-weight: bold;
-    text-transform: uppercase;
-    transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.btn:hover {
-    background: #75d085; /* Even lighter green on hover */
-    transform: translateY(-2px);
-}
-
-.btn:active {
-    transform: translateY(1px);
-}
-
-#stats {
-    margin-top: 20px;
-    padding: 15px;
-    background: #555; /* Slightly lighter gray for stats */
-    border: 2px solid #5cbe6d; /* Lighter green accent border */
-    border-radius: 8px;
-    font-size: 1.1em;
-    box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        #game-container {
+            max-width: 800px;
+            margin: auto;
+            background: #162447;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #output {
+            border: 2px solid #1f4068;
+            background: #1b1b2f;
+            padding: 10px;
+            margin-bottom: 20px;
+            height: 200px;
+            overflow-y: auto;
+        }
+        .btn {
+            display: inline-block;
+            background: #e43f5a;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #f56476;
+        }
+        #stats {
+            margin-top: 20px;
+            padding: 10px;
+            background: #1b1b2f;
+            border: 2px solid #1f4068;
+        }
     </style>
 </head>
 <body>
@@ -101,6 +70,7 @@ body {
         let currentArea = "start";
         let enemy = null;
         let level = 1;
+        let armorEquipped = false;  // Track if the player has equipped the armor
 
         function updateStats() {
             document.getElementById("health").innerText = health;
@@ -132,6 +102,16 @@ body {
                 buttons.innerHTML += `<button class="btn" onclick="restAtInn()">Rest at the Inn</button>`;
                 buttons.innerHTML += `<button class="btn" onclick="visitShop()">Visit the Shop</button>`;
                 buttons.innerHTML += `<button class="btn" onclick="returnToStart()">Return to Start</button>`;
+            }
+
+            // If user has a Healing Potion and add button for it
+            if (inventory.includes("Healing Potion")) {
+                buttons.innerHTML += `<button class="btn" onclick="useHealingPotion()">Use Healing Potion (Heal 30 HP)</button>`;
+            }
+
+            // If user has herbs, add button to sell them
+            if (inventory.includes("Herbs")) {
+                buttons.innerHTML += `<button class="btn" onclick="sellHerbs()">Sell Herbs (20 Gold)</button>`;
             }
         }
 
@@ -184,11 +164,14 @@ body {
             const playerDamage = Math.floor(Math.random() * 20) + 1;
             const enemyDamage = Math.floor(Math.random() * enemy.damage) + 1;
 
+            // Apply damage reduction if the player has armor
+            const finalDamage = armorEquipped ? enemyDamage * 0.7 : enemyDamage;
+
             enemy.health -= playerDamage;
-            health -= enemyDamage;
+            health -= finalDamage;
 
             output.innerHTML += `<p>You attack the ${enemy.name} for ${playerDamage} damage!</p>`;
-            output.innerHTML += `<p>The ${enemy.name} attacks you for ${enemyDamage} damage!</p>`;
+            output.innerHTML += `<p>The ${enemy.name} attacks you for ${Math.round(finalDamage)} damage!</p>`;
 
             if (enemy.health <= 0) {
                 output.innerHTML += `<p>You defeated the ${enemy.name}!</p>`;
@@ -211,9 +194,12 @@ body {
             const output = document.getElementById("output");
             const enemyDamage = Math.floor(Math.random() * (enemy.damage / 2)) + 1;
 
-            health -= enemyDamage;
+            // Apply damage reduction if the player has armor
+            const finalDamage = armorEquipped ? enemyDamage * 0.7 : enemyDamage;
 
-            output.innerHTML += `<p>You defend against the ${enemy.name}'s attack, taking only ${enemyDamage} damage!</p>`;
+            health -= finalDamage;
+
+            output.innerHTML += `<p>You defend against the ${enemy.name}'s attack, taking only ${Math.round(finalDamage)} damage!</p>`;
             if (health <= 0) {
                 output.innerHTML += "<p>You have been defeated! Game over.</p>";
                 health = 0;
@@ -245,10 +231,16 @@ body {
             output.innerHTML += "<p>Welcome to the shop! You can buy items here.</p>";
             if (gold >= 20) {
                 output.innerHTML += `<button class="btn" onclick="buyItem('Healing Potion')">Buy Healing Potion (20 Gold)</button>`;
-            } else {
-                output.innerHTML += "<p>You don't have enough gold to buy anything.</p>";
+            }
+            if (gold >= 400) {
+                output.innerHTML += `<button class="btn" onclick="buyItem('Armor')">Buy Armor (400 Gold)</button>`;
             }
             updateStats();
+
+            // Add option to sell herbs if you have them
+            if (inventory.includes("Herbs")) {
+                output.innerHTML += `<button class="btn" onclick="sellHerbs()">Sell Herbs (20 Gold)</button>`;
+            }
         }
 
         function buyItem(item) {
@@ -258,22 +250,37 @@ body {
                 gold -= 20;
                 output.innerHTML += "<p>You bought a Healing Potion!</p>";
                 updateStats();
+            } else if (item === "Armor" && gold >= 400) {
+                armorEquipped = true;
+                gold -= 400;
+                output.innerHTML += "<p>You bought Armor! You now take 30% less damage.</p>";
+                updateStats();
             } else {
                 output.innerHTML += "<p>You don't have enough gold to buy that.</p>";
             }
         }
 
-        function useItem(item) {
+        function sellHerbs() {
             const output = document.getElementById("output");
-            if (item === "Healing Potion") {
-                if (inventory.includes("Healing Potion")) {
-                    health = Math.min(100, health + 50); // Heal up to max health
-                    inventory = inventory.filter(i => i !== "Healing Potion");
-                    output.innerHTML += "<p>You use a Healing Potion and regain 50 health.</p>";
-                    updateStats();
-                } else {
-                    output.innerHTML += "<p>You don't have any Healing Potions to use.</p>";
-                }
+            if (inventory.includes("Herbs")) {
+                gold += 20;
+                inventory = inventory.filter(i => i !== "Herbs");
+                output.innerHTML += "<p>You sold your herbs and earned 20 gold!</p>";
+            } else {
+                output.innerHTML += "<p>You don't have any herbs to sell.</p>";
+            }
+            updateStats();
+        }
+
+        function useHealingPotion() {
+            const output = document.getElementById("output");
+            if (inventory.includes("Healing Potion")) {
+                health = Math.min(100, health + 30); // Heal 30 HP
+                inventory = inventory.filter(i => i !== "Healing Potion");
+                output.innerHTML += "<p>You used a Healing Potion and restored 30 health.</p>";
+                updateStats();
+            } else {
+                output.innerHTML += "<p>You don't have a Healing Potion to use.</p>";
             }
         }
 
